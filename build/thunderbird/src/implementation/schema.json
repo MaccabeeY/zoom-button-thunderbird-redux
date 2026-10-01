@@ -1,0 +1,19 @@
+[
+  {
+    "namespace": "ConfigBridge",
+    "functions": [
+      {
+        "name": "getMaxZoomPercent",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      },
+      {
+        "name": "getMinZoomPercent",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 15px;
+      margin: 0;
+      background-color: #f9f9fb;
+      color: #333;
+    }
+    .option-card {
+      background: #ffffff;
+      border: 1px solid #e0e0e6;
+      border-radius: 6px;
+      padding: 16px;
+      max-width: 440px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 16px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+      color: #111;
+    }
+    h3 {
+      margin: 14px 0 6px 0;
+      font-size: 13px;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    input[type="color"] {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 45px;
+      height: 24px;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+    }
+    select {
+      padding: 4px 8px;
+      font-size: 13px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #fff;
+      cursor: pointer;
+    }
+    .action-row {
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .reset-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid #d32f2f;
+      border-radius: 4px;
+      background-color: #fff;
+      color: #d32f2f;
+      cursor: pointer;
+    }
+    .reset-btn:hover {
+      background-color: #fffebb;
+    }
+    .status-msg {
+      font-size: 11px;
+      color: #2e7d32;
+      font-weight: bold;
+      height: 15px;
+      margin-top: 4px;
+    }
+    .instructions-panel {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 2px dashed #eee;
+      font-size: 12px;
+      color: #555;
+      line-height: 1.5;
+    }
+    .shortcut-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .shortcut-list li {
+      margin-bottom: 6px;
+    }
+    code {
+      background-color: #f0f0f4;
+      padding: 2px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-weight: bold;
+      color: #000;
+    }
+    /* Style additions to ensure your visual grid renders cleanly */
+    .icon-grid {
+      display: flex;
+      gap: 12px;
+      margin: 10px 0 16px 0;
+      background: #f1f1f4;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #e0e0e6;
+      justify-content: space-between;
+    }
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .icon-item img {
+      width: 32px;
+      height: 32px;
+      display: block;
+      background: #ffffff;
+      padding: 4px;
+       border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    .icon-item label {
+      font-size: 11px;
+      color: #555;
+      text-align: center;
+      cursor: pointer;
+    }
+    .icon-item input[type="radio"] {
+      margin: 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="option-card">
+    <h2>Zoom Button Settings</h2>
+    <div class="setting-row">
+      <label for="zoom-step">Zoom Increment Step</label>
+      <select id="zoom-step">
+        <option value="1">1% Fine Tuning</option>
+        <option value="5">5% Small Steps</option>
+        <option value="10">10% Standard Steps</option>
+        <option value="15">15% Large Steps</option>
+        <option value="20">20% Extra Large Steps</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label for="gesture-toggle">Enable Right-Click + Scroll Gesture</label>
+      <input type="checkbox" id="gesture-toggle">
+    </div>
+    <!--div class="setting-row" id="sensitivity-row">
+      <label for="gesture-sensitivity">Gesture Sensitivity</label>
+      <input type="range" id="gesture-sensitivity" min="20" max="150" step="5">
+    </div-->
+    <!-- Replaced unstable range slider with a glitch-free dropdown menu -->
+    <div class="setting-row" id="sensitivity-row">
+      <label for="gesture-sensitivity">Gesture Sensitivity</label>
+      <select id="gesture-sensitivity">
+        <option value="25">High Speed (25px buffer)</option>
+        <option value="50">Standard Steps (50px buffer)</option>
+        <option value="80">Deliberate Steps (80px buffer)</option>
+        <option value="120">Slow Tuning (120px buffer)</option>
+        <option value="150">Ultra Fine Tuning (150px buffer)</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label for="badge-color">Badge Background Color</label>
+      <input type="color" id="badge-color">
+    </div>
+    <div class="setting-row">
+      <label for="reset-behavior">Center Button Behavior</label>
+      <select id="reset-behavior">
+        <option value="80">Snap to 80%</option>
+        <option value="100">Always Reset to 100%</option>
+        <option value="120">Snap to 120%</option>
+        <option value="150">Snap to 150%</option>
+      </select>
+    </div>
+
+    <h3>Toolbar Icon Style</h3>
+    <div class="icon-grid">
+      <div class="icon-item">
+        <img src="images/icon-32-blue-thin.png" alt="Thin Ice Blue">
+        <input type="radio" id="icon-blue-thin" name="icon-choice" value="images/icon-32-blue-thin.png">
+        <label for="icon-blue-thin">Thin Blue</label>
+      </div>
+      <div class="icon-item">
+        <img src="images/icon-32-sky-thin.png" alt="Thin Sky Blue">
+        <input type="radio" id="icon-sky-thin" name="icon-choice" value="images/icon-32-sky-thin.png">
+        <label for="icon-sky-thin">Thin Sky</label>
+      </div>
+      <div class="icon-item">
+        <img src="images/icon-32-bw-thin.png" alt="Thin Monochrome">
+        <input type="radio" id="icon-bw-thin" name="icon-choice" value="images/icon-32-bw-thin.png">
+        <label for="icon-bw-thin">Thin B&W</label>
+      </div>
+      <div class="icon-item">
+        <img src="images/icon-32-bw-thick.png" alt="Thick Monochrome">
+        <input type="radio" id="icon-bw-thick" name="icon-choice" value="images/icon-32-bw-thick.png">
+        <label for="icon-bw-thick">Thick B&W</label>
+      </div>
+      <div class="icon-item">
+        <img src="images/icon-32-ORIG.png" alt="Original Baseline">
+        <input type="radio" id="icon-orig" name="icon-choice" value="images/icon-32-ORIG.png">
+        <label for="icon-orig">Original</label>
+      </div>
+    </div>
+
+
+    <div id="status" class="status-msg"></div>
+    <div class="instructions-panel">
+      <h3>How to use with mouse shortcuts</h3>
+      <ul class="shortcut-list">
+        <li><strong>Mouse Gestures:</strong> Click and hold the <code>Right Mouse Button</code> anywhere inside an open email's viewport, then scroll your <code>Mouse Wheel</code> up or down to change the zoom magnification.</li>
+        <li><strong>Instant Snap:</strong> While holding the <code>Right Mouse Button</code> down, click the <code>Mouse Wheel Button (Middle-Click)</code> to trigger your custom Center Button Behavior.</li>
+        <li><strong>System Bounds Sync:</strong> This add-on dynamically uses Thunderbird's advanced preferences values, <code>zoom.minPercent</code> and <code>zoom.maxPercent</code>, to set the minimum and maximum allowable zoom.</li>
+      </ul>
+    </div>
+    <div class="action-row">
+      <div></div>
+      <button id="reset-defaults" class="reset-btn" title="Restore factory default properties">Reset Defaults</button>
+    </div>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>
