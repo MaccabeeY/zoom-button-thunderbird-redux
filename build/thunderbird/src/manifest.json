@@ -1,14 +1,15 @@
 {
   "manifest_version": 2,
-  "name": "Zoom Button for Thunderbird (PEP)",
+  "name": "Zoom Button for Thunderbird (Redux+)",
   "version": "0.1.0",
-  "description": "Fixed-width zoom extension with custom configuration options dashboard.",
+  "description": "Fixed-width zoom extension with custom configuration options dashboard & one-handed mouse zooming.",
   "author": "Access Firefox Project",
   "homepage_url": "http://accessfirefox.org",
   "browser_specific_settings": {
     "gecko": {
-      "id": "ZoomButton@accessfirefox.org.pep",
-      "strict_min_version": "115.0"
+      "id": "ZoomButton@accessfirefox.org.redux",
+      "strict_min_version": "115.0",
+      "strict_max_version": "157.0"
     }
   },
   "background": {
