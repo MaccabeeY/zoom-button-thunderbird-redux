@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+  "name": "Zoom Button for Thunderbird (Redux+)",
+  "version": "0.1.1",
+  "description": "Fixed-width zoom extension with custom configuration options dashboard & one-handed mouse zooming.",
+  "author": "Access Firefox Project",
+  "homepage_url": "http://accessfirefox.org",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "ZoomButton@accessfirefox.org.redux",
+      "strict_min_version": "115.0"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "message_display_action": {
+    "default_label": "Zoom",
+    "default_title": "Zoom this message",
+    "default_icon": "images/icon-32-bw-thin.png",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "32": "images/icon-32-bw-thin.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "permissions": [
+    "activeTab",
+    "messagesModify",
+    "storage",
+    "tabs"
+  ]
+}

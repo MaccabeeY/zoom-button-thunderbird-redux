@@ -3,4 +3,5 @@
 *
 !.gitignore
 !*/
-!**/eAPI/**
+!**/static/**
+!**/publish/**
