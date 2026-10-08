@@ -1,13 +1,13 @@
 {
   "manifest_version": 2,
   "name": "Zoom Button for Thunderbird (Redux+)",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Fixed-width zoom extension with custom configuration options dashboard & one-handed mouse zooming.",
-  "author": "Access Firefox Project",
-  "homepage_url": "http://accessfirefox.org",
+  "author": "MaccabeeY Addons",
+  "homepage_url": "https://github.com/MaccabeeY/zoom-button-thunderbird-redux",
   "browser_specific_settings": {
     "gecko": {
-      "id": "ZoomButton@accessfirefox.org.redux",
+      "id": "ZoomButton@maccabeey.addon",
       "strict_min_version": "115.0",
       "data_collection_permissions": {
         "required": ["none"]
@@ -32,7 +32,8 @@
   },
   "permissions": [
     "activeTab",
-    "messagesModify",
+    "messagesRead",
+    "scripting",
     "storage",
     "tabs"
   ]

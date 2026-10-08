@@ -1,29 +1,22 @@
 /**
  * ============================================================================
- * ZOOM BUTTON FOR THUNDERBIRD (PEP) - CORE RUNTIME WORKER
+ * ZOOM BUTTON FOR THUNDERBIRD (REDUX+) - CORE RUNTIME WORKER
  * ============================================================================
  * Architecture: Manifest V2 Persistent Background Page
- *
- * DESIGN STRATEGY:
- * Because Manifest V2 scripts run persistently in the background memory space,
- * we can rely on synchronous global tracking variables for extreme responsiveness.
- * State updates are instantly saved to storage, but calculations bypass async lag.
  */
 
-/* ==========================================================================
-   1. GLOBAL IN-MEMORY PERSISTENT TRACKING STATES
-   ========================================================================== */
-let zoomTracker = 1.0;            // Keeps live zoom scale multiplier instantly accessible in RAM
-let absoluteCeilingLimit = 5.0;   // Maximum zoom cap (500%). Overwritten by fetchTrueSystemPreferences.
-let absoluteFloorLimit = 0.3;     // Minimum zoom floor (30%). Overwritten by fetchTrueSystemPreferences.
-let zoomIncrementStep = 0.10;     // Fallback step sizing. Overwritten dynamically by user configurations.
-let isGestureEnabled = true;      // Conditional switch to intercept right-click mouse combinations.
-let customBadgeColor = "#4A90E2"; // Toolbar badge accent color tracking layout preference.
-let activeIconPath = "images/icon-32-bw-thin.png"; // FIXED: Explicit global memory variable tracking layout path
+// Persistent in-memory variables tracking application state across active execution threads
+let zoomTracker = 1.0;            // Live scale factor cache (e.g., 1.0 = 100%, 1.2 = 120%) to prevent async storage lookups
+let absoluteCeilingLimit = 5.0;   // The maximum allowable magnification ceiling, bounded dynamically by system configs
+let absoluteFloorLimit = 0.3;     // The minimum allowable scaling floor, preventing text elements from shrinking to zero
+let zoomIncrementStep = 0.10;     // Fractional delta value added to or subtracted from zoomTracker during shift increments
+let isGestureEnabled = true;      // Master logic gate toggling tracking for right-click + wheel chord inputs
+let customBadgeColor = "#4A90E2"; // HEX color parameter passed to messageDisplayAction tracking badge background design
+let activeIconPath = "images/icon-32-bw-thin.png"; // Live string path tracking the active style variations of your extension icon
 
 /**
- * Recovers customized user parameters from local storage.
- * Safely self-seeds factory baseline configurations if a cold install is detected.
+ * Orchestrates preference loading from local disk arrays.
+ * Seeds factory fallback configurations if a cold initialization is identified.
  */
 function loadSavedAddonSettings() {
   messenger.storage.local.get({
@@ -31,11 +24,11 @@ function loadSavedAddonSettings() {
     enableGesture: true,
     gestureSensitivityValue: 50,
     badgeColor: "#4A90E2",
-    currentRuntimeZoom: 1.0, // Recover the last active zoom level across browser restarts
+    currentRuntimeZoom: 1.0,
     resetTarget: "100",
-    activeIconPath: "images/icon-32-bw-thin.png" // Cold root fallback
+    activeIconPath: "images/icon-32-bw-thin.png"
   }, (items) => {
-    // COLD ROOT VERIFICATION: If storage data hasn't been set yet, seed it natively
+    // Evaluates cold initialization conditions; populates baseline values if storage data points are missing
     if (items.gestureSensitivityValue === undefined || !items.badgeColor || !items.activeIconPath) {
       const defaultData = {
         zoomStep: "10",
@@ -57,21 +50,19 @@ function loadSavedAddonSettings() {
       return;
     }
 
-    // Normal Execution Sequence: Storage matches configuration states
+    // Normal Execution Pathway: Synchronizes retrieved parameters directly to global execution variables
     isGestureEnabled = items.enableGesture;
     customBadgeColor = items.badgeColor;
     zoomTracker = Number.parseFloat(items.currentRuntimeZoom);
-    // Convert UI display percentages (e.g., "10") down to mathematical decimals (0.10)
     zoomIncrementStep = parseInt(items.zoomStep, 10) / 100;
     activeIconPath = items.activeIconPath;
     updateButtonUI(zoomTracker);
   });
 }
 
-/* ==========================================================================
-   2. SYSTEM PREFERENCE WITHOUT BRIDGE INTERFACE
-   ========================================================================== */
-
+/**
+ * Normalizes system configuration profiles down to floating-point mathematical boundaries.
+ */
 async function fetchTrueSystemPreferences() {
   let rawMax = 500;
   let rawMin = 30;
@@ -79,14 +70,9 @@ async function fetchTrueSystemPreferences() {
   absoluteFloorLimit = rawMin / 100;
 }
 
-/* ==========================================================================
-   3. UI & GRAPHICS ORCHESTRATION (MV2 COMPLIANT)
-   ========================================================================== */
-
 /**
- * Modifies the icon badge text layout on the main message display toolbar.
- * MV2 Specific: Connects directly to the 'messageDisplayAction' namespace.
- * @param {number} level - Current scale parameter.
+ * Direct UI state synchronizer. Manages toolbar badges, tooltips, and file assets.
+ * @param {number} level - Floating-point scalar representing active viewport scale factor.
  */
 function updateButtonUI(level) {
   const percentageNum = Math.round(level * 100);
@@ -95,36 +81,25 @@ function updateButtonUI(level) {
     badgeString = percentageNum > 100 ? `${percentageNum}` : `${percentageNum}%`;
   }
 
-  // MV2 UI Target Definition
   const action = messenger.messageDisplayAction;
   if (action) {
     action.setBadgeText({ text: badgeString });
     action.setBadgeBackgroundColor({ color: customBadgeColor });
     action.setTitle({ title: "Zoom this message" });
-
-    // Programmatically invoke the image engine wrapper to apply icon shifts
     action.setIcon({ path: activeIconPath }).catch((err) => console.error("Icon render shift failure:", err));
   }
 }
 
-/* ==========================================================================
-   4. CONTENT SCRIPT GESTURE ENGINE (INJECTED SANDBOX FRAME)
-   ========================================================================== */
-
+// Deprecated injection string payload preserved strictly to retain fallback operational pathways
 const gestureContentScriptCode = `
   (function() {
-    // CACHED METRIC BUFFER LAYER: Holds configurations inside active thread RAM
-    // to bypass asynchronous database storage delays mid-gesture drag.
     let activeFrameZoomFactor = 1.0;
     let currentScrollThreshold = 50;
 
-    // Helper to refresh memory variables instantly from background source of truth
     function syncLocalFrameMetrics() {
       messenger.runtime.sendMessage({ action: "get-zoom" }, (response) => {
         if (response && response.currentZoom && document.body) {
           activeFrameZoomFactor = response.currentZoom;
-
-          // Modernized layout parsing matching the background orchestration engine
           document.body.style.transform = "scale(" + activeFrameZoomFactor + ")";
           document.body.style.transformOrigin = "top left";
           if (activeFrameZoomFactor > 1) {
@@ -140,10 +115,8 @@ const gestureContentScriptCode = `
       });
     }
 
-    // Run synchronization loop on initial page wake instantiation
     syncLocalFrameMetrics();
 
-    // Listen for options changes broadcast by options panel to update threshold variables live
     messenger.runtime.onMessage.addListener((message) => {
       if (message.action === "update-frame-parameters") {
         syncLocalFrameMetrics();
@@ -153,7 +126,6 @@ const gestureContentScriptCode = `
     if (window.hasZoomGestureEngineActive) return;
     window.hasZoomGestureEngineActive = true;
     let didZoomActionOccur = false;
-
     let accumulatedDeltaY = 0;
     let lastZoomTime = 0;
     const COOLDOWN_MS = 80;
@@ -166,7 +138,6 @@ const gestureContentScriptCode = `
         const now = performance.now();
         accumulatedDeltaY += event.deltaY;
 
-        // FIXED CRITICAL LINE: Evaluated purely against lightning-fast local memory variables
         if (Math.abs(accumulatedDeltaY) >= currentScrollThreshold && (now - lastZoomTime) > COOLDOWN_MS) {
           didZoomActionOccur = true;
           lastZoomTime = now;
@@ -211,16 +182,20 @@ const gestureContentScriptCode = `
   })();
 `;
 
-// Registers the script module persistently inside Thunderbird's browser execution context
+// Registers our dedicated gesture file early in the lifecycle of email presentation windows
 try {
-  messenger.messageDisplayScripts.register({
-    js: [{ code: gestureContentScriptCode }]
-  });
+  messenger.scripting.messageDisplay.registerScripts([
+    {
+      id: "zoom-mouse-wheel-logic",
+      js: ["gesture.js"],       // References the external tracking module containing hardware event listeners
+      runAt: "document_start"   // Enforces early payload deployment before window frames establish layouts
+    }
+  ]);
 } catch(err) {
   console.error("Script registration error: ", err);
 }
 
-// Global Event: Resets layout tracking variables back to 1.0 when a standalone pop-out window opens
+// Resets execution runtime tracking states to neutral baselines when pop-out reader views deploy
 messenger.windows.onCreated.addListener((newWindow) => {
   if (newWindow && newWindow.type !== "normal") {
     zoomTracker = 1.0;
@@ -229,42 +204,21 @@ messenger.windows.onCreated.addListener((newWindow) => {
   }
 });
 
-/* ==========================================================================
-   5. EXECUTION & CSS INJECTION ENGINE (MV2 SAFE EXECUTION)
-   ========================================================================== */
-
 /**
- * Injects CSS zoom transformations using secure script block strings.
- * MV2 Specific: Uses the cleaner, legacy tabs.executeScript environment layout.
- * @param {number} currentZoomValue - Calculated scaling coefficient.
- */
-/**
- * Injects CSS zoom transformations securely.
- * Secure Compliance Update: Eliminates dynamic string interpolation to pass extension validation checks.
- * @param {number} currentZoomValue - Calculated scaling coefficient.
- */
-/**
- * Injects CSS zoom transformations using cross-version compliant CSS transforms.
- * Fixes both the RCE security vulnerability and the legacy zoom rendering engine bug.
- * @param {number} currentZoomValue - Calculated scaling coefficient (e.g., 1.25 for 125%).
+ * Executes a functional programmatic matrix calculation inside target view layouts.
+ * @param {number} currentZoomValue - The floating point multiplier intended for execution.
  */
 async function applyZoomToContext(currentZoomValue) {
   let tabs = await messenger.tabs.query({ active: true, currentWindow: true });
   if (tabs.length > 0) {
-    // 1. Parse and sanitize the input to prevent injection risks
     const safeZoomValue = Number.parseFloat(Number.parseFloat(currentZoomValue).toFixed(2));
     if (isNaN(safeZoomValue)) return;
 
-    // 2. Inject safely using a functional wrapper parameter
     await messenger.tabs.executeScript(tabs.id, {
       code: `(function(scaleValue) {
         if (document.body) {
-          // Fix for modern rendering engines: Use standard transform matrices
           document.body.style.transform = "scale(" + scaleValue + ")";
           document.body.style.transformOrigin = "top left";
-
-          // When scaling up, elements might clip out of the viewport.
-          // This forces the body width to dynamically compensate for the scale matrix factor.
           if (scaleValue > 1) {
             document.body.style.width = (100 / scaleValue) + "%";
           } else {
@@ -277,13 +231,8 @@ async function applyZoomToContext(currentZoomValue) {
   }
 }
 
-/* ==========================================================================
-   6. CENTRAL TASK ROUTER & SIGNAL INTERCEPTOR
-   ========================================================================== */
-
 /**
- * Central event processor. Updates calculations using fast synchronous memory
- * and pipes changes instantly out to persistent local storage backings.
+ * Central state logic router. Captures navigation instructions and executes variable arithmetic.
  */
 async function runZoomChangeTask(action, sender, sendResponse) {
   if ((action === "zoom-in" || action === "zoom-out" || action === "zoom-snap-value" || action === "zoom-reset") && sender && sender.url) {
@@ -309,7 +258,6 @@ async function runZoomChangeTask(action, sender, sendResponse) {
     zoomTracker = parseInt(items.resetTarget, 10) / 100;
   } else if (action === "refresh-options") {
     loadSavedAddonSettings();
-    // Notify all active email layout views to reload memory threshold caches instantly
     let tabs = await messenger.tabs.query({});
     for (let tab of tabs) {
       messenger.tabs.sendMessage(tab.id, { action: "update-frame-parameters" }).catch(() => {});
@@ -318,7 +266,6 @@ async function runZoomChangeTask(action, sender, sendResponse) {
     return;
   }
 
-  // Update storage in the background, but immediately execute UI/DOM layout updates using local RAM variables
   messenger.storage.local.set({ currentRuntimeZoom: zoomTracker });
   updateButtonUI(zoomTracker);
   await applyZoomToContext(zoomTracker);
@@ -326,18 +273,15 @@ async function runZoomChangeTask(action, sender, sendResponse) {
   if (sendResponse) sendResponse({ currentZoom: zoomTracker });
 }
 
-/* ==========================================================================
-   7. SEQUENTIAL ASYNC QUEUE CONTROLLER
-   ========================================================================== */
+/**
+ * Pipelined storage command queue ensuring database mutations execute sequentially.
+ */
 class StorageTaskQueue {
   constructor() {
     this.queue = [];
     this.isProcessing = false;
   }
 
-  /**
-   * Pushes a new operation to the tail of the array and triggers execution
-   */
   enqueue(task) {
     return new Promise((resolve, reject) => {
       this.queue.push(async () => {
@@ -352,9 +296,6 @@ class StorageTaskQueue {
     });
   }
 
-  /**
-   * Evaluates the chain sequentially without overlap loops
-   */
   async processNext() {
     if (this.isProcessing) return;
     this.isProcessing = true;
@@ -368,14 +309,9 @@ class StorageTaskQueue {
   }
 }
 
-// Instantiate the global pipeline mechanism
 const storageQueue = new StorageTaskQueue();
 
-/* ==========================================================================
-   8. SECURE RUNTIME PIPELINE INTERCEPTOR
-   ========================================================================== */
-
-// Secure Runtime Pipeline Interceptor Interface Route mapping
+// Primary interface router capturing and dispersing incoming inter-process network signals
 messenger.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "get-zoom") {
     sendResponse({ currentZoom: zoomTracker });
@@ -390,9 +326,7 @@ messenger.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 loadSavedAddonSettings();
 
-/* ==========================================================================
-   9. COLD BOOT APPLICATION SEED ENGINE
-   ========================================================================== */
+// Registers installation lifecycle triggers to seed storage partitions on initial deployments
 messenger.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     messenger.storage.local.set({
